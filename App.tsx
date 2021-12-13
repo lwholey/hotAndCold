@@ -29,11 +29,14 @@ export default function App() {
   let desiredLon = -71.1334028;
   let text = 'Waiting..';
   let text2 = 'Waiting..';
+  let distance = 0;
   if (errorMsg) {
     text = errorMsg;
   } else if (location) {
     text = JSON.stringify(location);
-    text2 = coordToDistance(location.coords.latitude,location.coords.longitude,desiredLat,desiredLon);
+    distance = coordToDistance(location.coords.latitude,location.coords.longitude,desiredLat,desiredLon);
+    checkForVibrate(distance)
+    text2 = distance.toPrecision(6).toString()
   }
 
   return (
@@ -58,7 +61,33 @@ function coordToDistance(lat1, lon1, lat2, lon2) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
   let d = R * c; // in metres
-  return d.toPrecision(6).toString()
+  return d
+}
+
+function checkForVibrate(distance) {
+  console.log('testing1')
+  let maxCnt = 5;
+  if ( typeof checkForVibrate.ds == 'undefined' )
+  {
+    let maxDist = 100000
+    checkForVibrate.ds = [maxDist, maxDist, maxDist, maxDist, maxDist];
+    checkForVibrate.cnt = 0;
+  }
+  console.log('testing2')
+  for (const i of checkForVibrate.ds) {
+    console.log('testing3')
+    if (i < maxCnt - 1)
+    {
+      checkForVibrate.ds[i] = checkForVibrate.ds[i + 1]
+    }
+    else
+    {
+      checkForVibrate.ds[i] = distance
+    }
+    console.log(i);
+  }
+  
+
 }
 
 const styles = StyleSheet.create({
