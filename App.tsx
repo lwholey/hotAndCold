@@ -22,21 +22,24 @@ export default function App() {
       }
 
       let location = await Location.watchPositionAsync({accuracy:Location.Accuracy.Highest, distanceInterval: 0, timeInterval: 1000 }, loc => setLocation(loc));
-      console.log('testing10')
+      console.log('testing11')
       console.log(coordToDistance(1,2,1.0001,2.0001))
     })();
   }, []);
 
   let text = 'Waiting..';
+  let text2 = 'Waiting..';
   if (errorMsg) {
     text = errorMsg;
   } else if (location) {
     text = JSON.stringify(location);
+    text2 = coordToDistance(location.coords.latitude,location.coords.longitude,1.0001,2.0001);
   }
 
   return (
     <View style={styles.container}>
       <Text style={styles.paragraph}>{text}</Text>
+      <Text style={styles.paragraph}>{text2}</Text>
     </View>
   );
 }
@@ -44,7 +47,8 @@ export default function App() {
 // from https://www.movable-type.co.uk/scripts/latlong.html
 // lat and long have units of degrees
 function coordToDistance(lat1, lon1, lat2, lon2) {
-
+  console.log(lat1.toString())
+  console.log(lon1.toString())
   const R = 6371e3; // metres
   const φ1 = lat1 * Math.PI/180; // φ, λ in radians
   const φ2 = lat2 * Math.PI/180;
@@ -55,8 +59,9 @@ function coordToDistance(lat1, lon1, lat2, lon2) {
             Math.sin(Δλ/2) * Math.sin(Δλ/2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
-  const d = R * c; // in metres
-  return d
+  let d = R * c; // in metres
+  console.log(d.toString())
+  return d.toString()
 }
 
 const styles = StyleSheet.create({
