@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Platform, Text, View, StyleSheet } from 'react-native';
+import { Platform, Text, Vibration, View, StyleSheet } from 'react-native';
 import Constants from 'expo-constants';
 import * as Location from 'expo-location';
 
@@ -65,29 +65,15 @@ function coordToDistance(lat1, lon1, lat2, lon2) {
 }
 
 function checkForVibrate(distance) {
-  console.log('testing1')
-  let maxCnt = 5;
-  if ( typeof checkForVibrate.ds == 'undefined' )
+  if ( typeof checkForVibrate.dist == 'undefined' )
   {
-    let maxDist = 100000
-    checkForVibrate.ds = [maxDist, maxDist, maxDist, maxDist, maxDist];
-    checkForVibrate.cnt = 0;
+    checkForVibrate.dist = 100000
   }
-  console.log('testing2')
-  for (const i of checkForVibrate.ds) {
-    console.log('testing3')
-    if (i < maxCnt - 1)
-    {
-      checkForVibrate.ds[i] = checkForVibrate.ds[i + 1]
-    }
-    else
-    {
-      checkForVibrate.ds[i] = distance
-    }
-    console.log(i);
+  if (distance < checkForVibrate.dist && distance > 0)
+  {
+    Vibration.vibrate(1000)
   }
-  
-
+  checkForVibrate.dist = distance
 }
 
 const styles = StyleSheet.create({
