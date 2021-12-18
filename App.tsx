@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Platform, Text, Vibration, View, StyleSheet } from 'react-native';
 import Constants from 'expo-constants';
 import * as Location from 'expo-location';
+import { Audio } from 'expo-av';
 
 export default function App() {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [sound, setSound] = React.useState();
 
   useEffect(() => {
     (async () => {
@@ -25,6 +27,21 @@ export default function App() {
     })();
   }, []);
 
+  async function playSound() {
+    const { sound } = await Audio.Sound.createAsync(
+       require('./assets/xMarksTheSpot.m4a')
+    );
+    setSound(sound);
+
+    await sound.playAsync(); }
+
+  React.useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync(); }
+      : undefined;
+  }, [sound]);
+
   let desiredLat = 42.3424491;
   let desiredLon = -71.1334028;
   let text = 'Waiting..';
@@ -35,7 +52,10 @@ export default function App() {
   } else if (location) {
     text = JSON.stringify(location);
     distance = coordToDistance(location.coords.latitude,location.coords.longitude,desiredLat,desiredLon);
-    checkForVibrate(distance)
+    if (checkForVibrate(distance) == 1)
+    {
+      playSound()
+    }
     text2 = distance.toPrecision(6).toString()
   }
 
@@ -65,15 +85,28 @@ function coordToDistance(lat1, lon1, lat2, lon2) {
 }
 
 function checkForVibrate(distance) {
+  let closeToTargetDist = 3
   if ( typeof checkForVibrate.dist == 'undefined' )
   {
     checkForVibrate.dist = 100000
+    checkForVibrate.closeToTarget = 0
   }
-  if (distance < checkForVibrate.dist && distance > 0)
+  if (distance < checkForVibrate.dist && distance > 0 && checkForVibrate.closeToTarget == 0)
   {
     Vibration.vibrate(1000)
   }
   checkForVibrate.dist = distance
+  if (distance < closeToTargetDist && distance > 0 && checkForVibrate.closeToTarget == 0)
+  {
+    // this will play the voice sound once and stop vibrations
+    checkForVibrate.closeToTarget = 1
+    return 1
+  }
+  else
+  {
+    return 0
+  }
+  
 }
 
 const styles = StyleSheet.create({
